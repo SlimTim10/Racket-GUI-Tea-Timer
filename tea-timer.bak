@@ -1,0 +1,146 @@
+#lang racket/gui
+
+; Format seconds to [m]m:ss
+(define (time-format t)
+  (let ([min (floor (/ t 60))]
+        [sec (modulo t 60)])
+    (string-append (number->string min) ":" (~a sec #:min-width 2 #:align 'right #:pad-string "0"))))
+
+(define (tea-alarm)
+  (play-sound "C:\\Windows\\Media\\notify.wav" #f)
+  (play-sound "C:\\Windows\\Media\\notify.wav" #f)
+  (play-sound "C:\\Windows\\Media\\notify.wav" #f))
+
+; Create the window
+(define frame (new frame%
+                   [label "Tea Timer"]
+                   [width 400]
+                   [height 250]))
+
+; Show initial message
+(define msg (new message%
+                 [parent (new horizontal-panel% [parent frame] [alignment '(center top)])]
+                 [label "Choose a timer"]
+                 [font (make-object font% 16 'default)]))
+
+(define hpanel (new horizontal-panel% [parent frame]))
+(define vpanel-left (new vertical-panel% [parent hpanel] [alignment '(center top)]))
+(define vpanel-center (new vertical-panel% [parent hpanel] [alignment '(center top)]))
+(define vpanel-right (new vertical-panel% [parent hpanel] [alignment '(right bottom)]))
+
+(define total-seconds 5)
+; begin is the time when "Start" button is pressed
+(define begin 0)
+(define diff total-seconds)
+
+; Timer callback
+(define timer (new timer%
+                   [notify-callback (lambda ()
+                                      (set! diff (- begin (current-seconds)))
+                                      (if (>= diff 0)
+                                          (send msg set-label (time-format diff))
+                                          (begin
+                                            (tea-alarm)
+                                            (send timer stop))))]
+                   [interval #f]))
+
+; 30 seconds
+(new button%
+     [parent vpanel-left]
+     [label "30 seconds"]
+     [callback (lambda (button event)
+                 (set! diff 5)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; 1 minute
+(new button%
+     [parent vpanel-left]
+     [label "1 minute"]
+     [callback (lambda (button event)
+                 (set! diff 60)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; 2 minutes
+(new button%
+     [parent vpanel-left]
+     [label "2 minutes"]
+     [callback (lambda (button event)
+                 (set! diff 120)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; 3 minutes
+(new button%
+     [parent vpanel-left]
+     [label "3 minutes"]
+     [callback (lambda (button event)
+                 (set! diff 180)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; 4 minutes
+(new button%
+     [parent vpanel-left]
+     [label "4 minutes"]
+     [callback (lambda (button event)
+                 (set! diff 240)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; Coconut Oolong
+(new button%
+     [parent vpanel-center]
+     [label "Coconut Oolong"]
+     [callback (lambda (button event)
+                 (set! diff 180)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; White Tea
+(new button%
+     [parent vpanel-center]
+     [label "White Tea"]
+     [callback (lambda (button event)
+                 (set! diff 180)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; Yellow Tea
+(new button%
+     [parent vpanel-center]
+     [label "Yellow Tea"]
+     [callback (lambda (button event)
+                 (set! diff 180)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; Pause button
+(new button%
+     [parent vpanel-right]
+     [label "Pause"]
+     [callback (lambda (button event)
+                 (send timer stop))])
+
+; Resume button
+(new button%
+     [parent vpanel-right]
+     [label "Resume"]
+     [callback (lambda (button event)
+                 (set! begin (+ (current-seconds) diff))
+                 (send timer start 10))])
+
+; Reset button
+(new button%
+     [parent vpanel-right]
+     [label "Reset"]
+     [callback (lambda (button event)
+                 (send timer stop)
+                 (set! diff total-seconds)
+                 (set! begin (current-seconds))
+                 (send msg set-label "Choose a timer")
+                 )])
+
+; show window
+(send frame show #t)
